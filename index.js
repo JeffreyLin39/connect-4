@@ -3,7 +3,7 @@ const player = {
 	winner: -1,
 };
 
-const board = [
+let board = [
 	[-1, -1, -1, -1, -1, -1, -1],
 	[-1, -1, -1, -1, -1, -1, -1],
 	[-1, -1, -1, -1, -1, -1, -1],
@@ -35,7 +35,7 @@ const drawGrid = () => {
 				}
 			}
 
-			if (!target) return;
+			if (!target || player.winner != -1) return;
 			board[j][col - 1] = +player.turn;
 			if (player.turn) {
 				target.style.backgroundColor = "#d13143";
@@ -47,7 +47,15 @@ const drawGrid = () => {
 			player.turn = !player.turn;
 
 			checkWinner();
+			if (player.winner == 0) {
+				document.getElementById("heading").innerHTML =
+					"Player 2 Wins, click reset";
+			} else if (player.winner == 1) {
+				document.getElementById("heading").innerHTML =
+					"Player 1 Wins, click reset";
+			}
 		});
+
 		const circle = document.createElement("div");
 		circle.id = "circle";
 		circle.className = i + 1;
@@ -66,6 +74,15 @@ const reset = () => {
 	for (i = 1; i < 43; i++) {
 		document.getElementsByClassName(i)[1].style.backgroundColor = "";
 	}
+	board = [
+		[-1, -1, -1, -1, -1, -1, -1],
+		[-1, -1, -1, -1, -1, -1, -1],
+		[-1, -1, -1, -1, -1, -1, -1],
+		[-1, -1, -1, -1, -1, -1, -1],
+		[-1, -1, -1, -1, -1, -1, -1],
+		[-1, -1, -1, -1, -1, -1, -1],
+	];
+	document.getElementById("heading").innerHTML = "Player 1 Go";
 };
 
 const toggle = () => {
@@ -78,58 +95,59 @@ const toggle = () => {
 };
 
 const checkWinner = () => {
-	previous = -1;
-	count = 0;
-	for (row in board) {
-		for (col in row) {
-			if (count == 4) player.winner = previous;
-			if (board[row][col] == previous && previous != -1) count++;
-			else {
-				count = 0;
-				previous = board[row][col];
-			}
-		}
-		count = 0;
-		previous = board[row][col];
-	}
-
-	for (row in board) {
-		for (col in row) {
-			if (count == 4) player.winner = previous;
-			if (board[col][row] == previous && previous != -1) count++;
-			else {
-				count = 0;
-				previous = board[col][row];
-			}
-		}
-		count = 0;
-		previous = board[col][row];
-	}
-
-	for (let row = 0; row < 3; row++) {
-		for (let col = 0; col < 3 - row; col++) {
+	// check rows and columns
+	for (i = 0; i < 6; i++) {
+		for (j = 0; j < 4; j++) {
 			if (
-				board[row][col] != -1 &&
-				board[row][col] == board[row + 1][col + 1] &&
-				board[row][col] == board[row + 1][col + 1] &&
-				board[row][col] == board[row + 2][col + 2] &&
-				board[row][col] == board[row + 3][col + 3]
+				board[i][j] == board[i][j + 1] &&
+				board[i][j] == board[i][j + 2] &&
+				board[i][j] == board[i][j + 3]
 			) {
-				player.winner = board[row][col];
+				if (board[i][j] != -1) {
+					player.winner = board[i][j];
+				}
+			}
+		}
+	}
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 7; j++) {
+			if (
+				board[i][j] == board[i + 1][j] &&
+				board[i][j] == board[i + 2][j] &&
+				board[i][j] == board[i + 3][j]
+			) {
+				if (board[i][j] != -1) {
+					player.winner = board[i][j];
+				}
 			}
 		}
 	}
 
-	for (let row = 0; row < 3; row++) {
-		for (let col = 6; col > row + 3; col++) {
+	// check ascending diagonals
+	for (i = 3; i < 6; i++) {
+		for (j = 0; j < 4; j++) {
 			if (
-				board[row][col] != -1 &&
-				board[row][col] == board[row + 1][col - 1] &&
-				board[row][col] == board[row + 1][col - 1] &&
-				board[row][col] == board[row + 2][col - 2] &&
-				board[row][col] == board[row + 3][col - 3]
+				board[i][j] == board[i - 1][j + 1] &&
+				board[i][j] == board[i - 2][j + 2] &&
+				board[i][j] == board[i - 3][j + 3]
 			) {
-				player.winner = board[row][col];
+				if (board[i][j] != -1) {
+					player.winner = board[i][j];
+				}
+			}
+		}
+	}
+	// check descending diagonals
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 4; j++) {
+			if (
+				board[i][j] == board[i + 1][j + 1] &&
+				board[i][j] == board[i + 2][j + 2] &&
+				board[i][j] == board[i + 3][j + 3]
+			) {
+				if (board[i][j] != -1) {
+					player.winner = board[i][j];
+				}
 			}
 		}
 	}
